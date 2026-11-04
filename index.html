@@ -338,14 +338,21 @@
       }
 
       .hero-photo img {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
         object-position: center 48%;
-        opacity: 0.84;
+        opacity: 0;
         transform: scale(1.02);
         animation: hero-zoom 12s ease-in-out infinite alternate;
+        transition: opacity 1400ms ease;
         will-change: transform;
+      }
+
+      .hero-photo img.is-active {
+        opacity: 0.84;
       }
 
       @keyframes hero-zoom {
@@ -1770,8 +1777,14 @@
 
     <main>
       <section class="hero" id="home">
-        <div class="hero-photo">
-          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&amp;fit=crop&amp;w=2200&amp;q=88" alt="Business documents, reports and charts laid out for strategic planning" data-i18n-alt="heroImageAlt" fetchpriority="high" />
+        <div class="hero-photo" aria-hidden="true">
+          <img class="is-active" src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&amp;fit=crop&amp;w=2200&amp;q=88" alt="Business documents, reports and charts laid out for strategic planning" data-i18n-alt="heroImageAlt" fetchpriority="high" />
+          <img src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
+          <img src="https://images.unsplash.com/photo-1543286386-713bdd548da4?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
+          <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
+          <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&amp;fit=crop&amp;w=1600&amp;q=78" alt="" decoding="async" fetchpriority="low" />
         </div>
         <div class="container hero-content">
           <div class="hero-copy">
@@ -2239,6 +2252,7 @@
       const menuToggle = document.querySelector(".menu-toggle");
       const scrollTopButton = document.querySelector(".scroll-top");
       const mobileNav = document.querySelector("#mobile-nav");
+      const heroSlides = [...document.querySelectorAll(".hero-photo img")];
       const savedLanguage = localStorage.getItem("preferred-language");
       const browserLanguage = navigator.language.slice(0, 2);
       const supportedLanguages = ["en", "es"];
@@ -2281,6 +2295,17 @@
       applyLanguage(initialLanguage);
       applyTheme(savedTheme === "light" ? "light" : "dark");
       document.querySelector("#current-year").textContent = new Date().getFullYear();
+
+      if (heroSlides.length > 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        let activeSlide = 0;
+        window.setInterval(() => {
+          const nextSlide = (activeSlide + 1) % heroSlides.length;
+          if (!heroSlides[nextSlide].complete || heroSlides[nextSlide].naturalWidth === 0) return;
+          heroSlides[activeSlide].classList.remove("is-active");
+          heroSlides[nextSlide].classList.add("is-active");
+          activeSlide = nextSlide;
+        }, 7000);
+      }
 
       function closeLanguageMenu(returnFocus = false) {
         languageButton.setAttribute("aria-expanded", "false");
