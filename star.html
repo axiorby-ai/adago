@@ -32,6 +32,7 @@
       const canvas = document.querySelector(".particles");
       const context = canvas.getContext("2d");
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const isMobile = window.matchMedia("(max-width: 700px), (pointer: coarse)");
       const particles = [];
       const particleOrigin = localStorage.getItem("particle-origin") === "left" ? "left" : "right";
       const direction = particleOrigin === "left" ? 1 : -1;
@@ -40,6 +41,8 @@
       let previousTime = 0;
       let emissionRemainder = 0;
       let animationFrame = 0;
+      let glowGradient;
+      let edgeGradient;
 
       localStorage.setItem("particle-origin", particleOrigin === "left" ? "right" : "left");
 
@@ -63,7 +66,7 @@
       }
 
       function resize() {
-        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, isMobile.matches ? 1 : 1.5);
         width = window.innerWidth;
         height = window.innerHeight;
         canvas.width = Math.round(width * pixelRatio);
@@ -71,23 +74,23 @@
         context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
         particles.length = 0;
-        emitParticles(Math.min(45, Math.ceil(height / 18)));
+        emitParticles(Math.min(isMobile.matches ? 16 : 32, Math.ceil(height / (isMobile.matches ? 48 : 24))));
+        const edgeX = particleOrigin === "right" ? width : 0;
+        glowGradient = context.createRadialGradient(edgeX, height / 2, 0, edgeX, height / 2, Math.min(width * 0.38, 420));
+        glowGradient.addColorStop(0, "rgba(36, 255, 18, 0.2)");
+        glowGradient.addColorStop(0.18, "rgba(36, 255, 18, 0.07)");
+        glowGradient.addColorStop(1, "rgba(36, 255, 18, 0)");
+        edgeGradient = context.createLinearGradient(edgeX, 0, edgeX - direction * 3, 0);
+        edgeGradient.addColorStop(0, "rgba(57, 255, 20, 0)");
+        edgeGradient.addColorStop(1, "rgba(57, 255, 20, 0.7)");
         draw(0, false);
       }
 
       function drawEdgeGlow() {
-        const edgeX = particleOrigin === "right" ? width : 0;
-        const glow = context.createRadialGradient(edgeX, height / 2, 0, edgeX, height / 2, Math.min(width * 0.38, 420));
-        glow.addColorStop(0, "rgba(36, 255, 18, 0.2)");
-        glow.addColorStop(0.18, "rgba(36, 255, 18, 0.07)");
-        glow.addColorStop(1, "rgba(36, 255, 18, 0)");
-        context.fillStyle = glow;
+        context.fillStyle = glowGradient;
         context.fillRect(0, 0, width, height);
 
-        const edge = context.createLinearGradient(edgeX, 0, edgeX - direction * 3, 0);
-        edge.addColorStop(0, "rgba(57, 255, 20, 0)");
-        edge.addColorStop(1, "rgba(57, 255, 20, 0.7)");
-        context.fillStyle = edge;
+        context.fillStyle = edgeGradient;
         context.fillRect(particleOrigin === "right" ? width - 3 : 0, 0, 3, height);
       }
 
@@ -95,16 +98,21 @@
         context.clearRect(0, 0, width, height);
         drawEdgeGlow();
         if (animate) {
-          emissionRemainder += delta * (prefersReducedMotion.matches ? 12 : 48);
+          const emissionRate = isMobile.matches
+            ? (prefersReducedMotion.matches ? 6 : 14)
+            : (prefersReducedMotion.matches ? 12 : 48);
+          emissionRemainder += delta * emissionRate;
           const count = Math.floor(emissionRemainder);
           emissionRemainder -= count;
-          emitParticles(count);
+          const maxParticles = isMobile.matches ? 55 : 180;
+          emitParticles(Math.min(count, maxParticles - particles.length));
         }
 
         context.save();
         context.globalCompositeOperation = "lighter";
-        for (let i = particles.length - 1; i >= 0; i -= 1) {
-          const particle = particles[i];
+        const paths = Array.from({ length: 3 }, () => ({ trails: new Path2D(), dots: new Path2D() }));
+        const activeParticles = [];
+        for (const particle of particles) {
           if (animate) {
             particle.x += particle.vx * delta;
             particle.y += particle.vy * delta;
@@ -112,29 +120,28 @@
           }
 
           if (particle.age >= particle.lifetime || particle.y < -10 || particle.y > height + 10) {
-            particles.splice(i, 1);
             continue;
           }
 
           const lifeProgress = particle.age / particle.lifetime;
           const opacity = Math.sin(lifeProgress * Math.PI) * 0.9;
+          const path = paths[Math.min(2, Math.floor(opacity * 3))];
           const tailLength = Math.min(24, Math.abs(particle.vx) * 0.07);
-          const gradient = context.createLinearGradient(particle.x, particle.y, particle.x - direction * tailLength, particle.y);
-          gradient.addColorStop(0, `rgba(57, 255, 20, ${opacity})`);
-          gradient.addColorStop(1, "rgba(57, 255, 20, 0)");
-          context.strokeStyle = gradient;
-          context.lineWidth = particle.size;
-          context.beginPath();
-          context.moveTo(particle.x, particle.y);
-          context.lineTo(particle.x - direction * tailLength, particle.y);
-          context.stroke();
+          path.trails.moveTo(particle.x, particle.y);
+          path.trails.lineTo(particle.x - direction * tailLength, particle.y);
+          path.dots.moveTo(particle.x + particle.size * 0.65, particle.y);
+          path.dots.arc(particle.x, particle.y, particle.size * 0.65, 0, Math.PI * 2);
+          activeParticles.push(particle);
+        }
 
-          context.shadowColor = "#39ff14";
-          context.shadowBlur = particle.size * 7;
-          context.fillStyle = `rgba(190, 255, 175, ${opacity})`;
-          context.beginPath();
-          context.arc(particle.x, particle.y, particle.size * 0.65, 0, Math.PI * 2);
-          context.fill();
+        particles.length = 0;
+        particles.push(...activeParticles);
+        context.lineWidth = isMobile.matches ? 1.5 : 2;
+        for (let i = 0; i < paths.length; i += 1) {
+          context.strokeStyle = `rgba(57, 255, 20, ${(i + 1) / 3})`;
+          context.fillStyle = `rgba(190, 255, 175, ${(i + 1) / 3})`;
+          context.stroke(paths[i].trails);
+          context.fill(paths[i].dots);
         }
         context.restore();
       }
@@ -153,7 +160,16 @@
       }
 
       window.addEventListener("resize", resize);
+      window.addEventListener("orientationchange", resize);
+      isMobile.addEventListener("change", resize);
       prefersReducedMotion.addEventListener("change", updateMotionPreference);
+      document.addEventListener("visibilitychange", () => {
+        window.cancelAnimationFrame(animationFrame);
+        if (!document.hidden) {
+          previousTime = performance.now();
+          animationFrame = window.requestAnimationFrame(animate);
+        }
+      });
       resize();
       updateMotionPreference();
     </script>
