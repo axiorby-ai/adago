@@ -203,7 +203,6 @@
       }
 
       .language-button,
-      .theme-toggle,
       .menu-toggle {
         min-height: 38px;
         border: 1px solid rgba(255, 255, 255, 0.27);
@@ -218,29 +217,18 @@
       .language-button {
         position: relative;
         display: inline-flex;
-        width: 58px;
+        width: 39px;
         min-height: 38px;
         align-items: center;
-        justify-content: flex-start;
-        padding: 0 14px;
+        justify-content: center;
+        padding: 0;
         border-radius: 999px;
         cursor: pointer;
-        font-size: 10px;
-        font-weight: 700;
       }
 
-      .language-chevron {
-        position: absolute;
-        top: 50%;
-        right: 14px;
-        width: 10px;
-        height: 10px;
-        transform: translateY(-50%);
-        transition: transform 160ms ease;
-      }
-
-      .language-button[aria-expanded="true"] .language-chevron {
-        transform: translateY(-50%) rotate(180deg);
+      .language-button svg {
+        width: 17px;
+        height: 17px;
       }
 
       .language-menu {
@@ -289,7 +277,6 @@
         font-size: 12px;
       }
 
-      .theme-toggle,
       .menu-toggle {
         display: grid;
         width: 39px;
@@ -300,14 +287,9 @@
         cursor: pointer;
       }
 
-      .theme-toggle svg,
       .menu-toggle svg {
         width: 17px;
         height: 17px;
-      }
-
-      .theme-toggle .sun-icon {
-        display: none;
       }
 
       .menu-toggle {
@@ -1391,23 +1373,13 @@
         }
 
         .language-button {
-          min-height: 36px;
-          width: 56px;
-          padding: 0 13px;
-        }
-
-        .language-chevron {
-          right: 13px;
-        }
-
-        .theme-toggle,
-        .menu-toggle {
           width: 36px;
           min-height: 36px;
         }
 
-        .theme-toggle {
-          display: none;
+        .menu-toggle {
+          width: 36px;
+          min-height: 36px;
         }
 
         .menu-toggle {
@@ -1681,12 +1653,6 @@
           display: none;
         }
 
-        .language-button {
-          width: 54px;
-          font-size: 9px;
-        }
-
-        .theme-toggle,
         .menu-toggle {
           width: 33px;
         }
@@ -1746,19 +1712,14 @@
           </nav>
           <div class="header-tools">
             <div class="language-picker">
-              <button class="language-button" id="language-button" type="button" aria-label="Language: EN" aria-haspopup="listbox" aria-expanded="false" aria-controls="language-menu">
-                <span id="language-current">EN</span>
-                <svg class="language-chevron" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m2.5 4.5 3.5 3 3.5-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <button class="language-button" id="language-button" type="button" aria-label="Language" aria-haspopup="listbox" aria-expanded="false" aria-controls="language-menu">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 12h17M12 3c2.2 2.4 3.3 5.4 3.3 9s-1.1 6.6-3.3 9c-2.2-2.4-3.3-5.4-3.3-9S9.8 5.4 12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
               <div class="language-menu" id="language-menu" role="listbox" aria-label="Language" data-i18n-aria-label="languageLabel" hidden>
                 <button class="language-option" type="button" role="option" data-language="en" aria-selected="true">English</button>
                 <button class="language-option" type="button" role="option" data-language="es" aria-selected="false">Español</button>
               </div>
             </div>
-            <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme">
-              <svg class="moon-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 15.1A8.4 8.4 0 0 1 8.9 4 8.5 8.5 0 1 0 20 15.1Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <svg class="sun-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </button>
             <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
             </button>
@@ -2034,8 +1995,6 @@
           mainNavigation: "Main navigation",
           mobileNavigation: "Mobile navigation",
           areasLabel: "Areas of work",
-          themeDark: "Switch to dark theme",
-          themeLight: "Switch to light theme",
           backToTop: "Back to top",
           menuOpen: "Open menu",
           menuClose: "Close menu",
@@ -2145,8 +2104,6 @@
           mainNavigation: "Navegación principal",
           mobileNavigation: "Navegación móvil",
           areasLabel: "Áreas de trabajo",
-          themeDark: "Activar tema oscuro",
-          themeLight: "Activar tema claro",
           backToTop: "Volver arriba",
           menuOpen: "Abrir menú",
           menuClose: "Cerrar menú",
@@ -2245,10 +2202,8 @@
 
       const root = document.documentElement;
       const languageButton = document.querySelector("#language-button");
-      const languageCurrent = document.querySelector("#language-current");
       const languageMenu = document.querySelector("#language-menu");
       const languageOptions = [...languageMenu.querySelectorAll(".language-option")];
-      const themeToggle = document.querySelector(".theme-toggle");
       const menuToggle = document.querySelector(".menu-toggle");
       const scrollTopButton = document.querySelector(".scroll-top");
       const mobileNav = document.querySelector("#mobile-nav");
@@ -2268,7 +2223,7 @@
           const value = dictionary[element.dataset.i18n];
           if (value !== undefined) element.innerHTML = value;
         });
-        languageButton.setAttribute("aria-label", `${dictionary.languageLabel}: ${language.toUpperCase()}`);
+        languageButton.setAttribute("aria-label", dictionary.languageLabel);
         document.querySelectorAll("[data-i18n-alt]").forEach((element) => {
           element.alt = dictionary[element.dataset.i18nAlt];
         });
@@ -2276,7 +2231,6 @@
           element.setAttribute("aria-label", dictionary[element.dataset.i18nAriaLabel]);
         });
         menuToggle.setAttribute("aria-label", dictionary[menuToggle.getAttribute("aria-expanded") === "true" ? "menuClose" : "menuOpen"]);
-        languageCurrent.textContent = language.toUpperCase();
         languageOptions.forEach((option) => {
           option.setAttribute("aria-selected", String(option.dataset.language === language));
         });
@@ -2285,9 +2239,6 @@
 
       function applyTheme(theme) {
         root.dataset.theme = theme;
-        const label = translations[root.lang][theme === "dark" ? "themeLight" : "themeDark"];
-        themeToggle.setAttribute("aria-label", label);
-        themeToggle.title = label;
         document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1b201a" : "#111511";
         localStorage.setItem("preferred-theme-v2", theme);
       }
@@ -2352,10 +2303,6 @@
         if (event.key === "Escape" && languageButton.getAttribute("aria-expanded") === "true") {
           closeLanguageMenu(true);
         }
-      });
-
-      themeToggle.addEventListener("click", () => {
-        applyTheme(root.dataset.theme === "dark" ? "light" : "dark");
       });
 
       menuToggle.addEventListener("click", () => {
